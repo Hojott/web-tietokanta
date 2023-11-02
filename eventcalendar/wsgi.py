@@ -3,7 +3,7 @@
 from flask import Flask
 
 from routes import load_routes # pylint: disable=import-error
-from dbs import load_db
+from dbs import Database # pylint: disable=import-error
 
 def run() -> None:
     """ Run the webserver """
@@ -12,7 +12,9 @@ def run() -> None:
     app = Flask("hboard")
 
     # Load the database using the application
-    db = load_db(app)
+    # Note app context is required
+    with app.app_context():
+        db = Database(app)
 
     # Load Flask routes, using the db and app
     load_routes(app, db)
