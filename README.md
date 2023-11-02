@@ -1,6 +1,6 @@
 # Tietokannat ja web-ohjelmointi
 
-HBoard: a nice infoboard made to resemble a standard irl message board.
+The app is an event calendar where organizations can add events and users can search them.
 
 ## Installation
 
