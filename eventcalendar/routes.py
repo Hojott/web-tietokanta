@@ -27,20 +27,20 @@ def load_routes(app: Flask, db: Database) -> None:
     def event(post_id: int):
         """ Event page """
 
-    @app.route("/register/<type>", methods=["GET", "POST"])
-    def register(type: str) -> str:
+    @app.route("/register/<rtype>", methods=["GET", "POST"])
+    def register(rtype: str) -> str:
         """ Register user / organization """
 
         if request.method == "POST":
 
-            if type == "user":
+            if rtype == "user":
                 db.register_user(
                     request.form["username"],
                     request.form["shown_name"],
                     request.form["password"]
                 )
 
-            elif type == "organization":
+            elif rtype == "organization":
                 db.register_organization(
                     request.form["username"],
                     request.form["shown_name"],
