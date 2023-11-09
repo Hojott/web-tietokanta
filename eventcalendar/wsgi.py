@@ -2,14 +2,14 @@
 
 from flask import Flask
 
-from routes import load_routes # pylint: disable=import-error
-from dbs import Database # pylint: disable=import-error
+from routes import load_routes
+from dbs import Database
 
 def run() -> None:
     """ Run the webserver """
 
     # Create the Flask object
-    app = Flask("hboard")
+    app = Flask("eventcalendar", template_folder="eventcalendar/templates")
 
     # Load the database using the application
     # Note app context is required

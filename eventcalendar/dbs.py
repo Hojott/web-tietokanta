@@ -15,7 +15,7 @@ class Database():
         """ ... """
 
         # Configure the app
-        app.config["SQLALCHEMY_DATABASE_URI"] = getenv("DATABASE_URL")
+        app.config["SQLALCHEMY_DATABASE_URI"] = getenv("SQLALCHEMY_DATABASE_URI")
         #app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
         # Create a SQLAlchemy object from the app
@@ -32,7 +32,7 @@ class Database():
         # self.__validate(shown_name=shown_name)
         # self.__validate(password=password)
 
-        password_hashed = password + "hash"
+        password_hashed = self.__hash(password)
 
         self.__add_user(username, shown_name, password_hashed)
 
@@ -55,10 +55,24 @@ class Database():
         # self.__validate(username=username)
         # self.__validate(password=password)
 
-        password_hashed = password + "hash"
+        password_hashed = self.__hash(password)
 
         self.__update_user(username, password=password_hashed)
 
+    def test_credentials(self, username: str, password: str) -> bool:
+        """ Try logging in """
+
+        password_hashed = self.__hash(password)
+
+        real_password = self.__get_user(username, data="password")
+
+        print(password_hashed, real_password)
+
+        if real_password == password_hashed:
+            print("yeaahh")
+            return True
+        
+        return False
 
 #======= Private functions =====#
 
@@ -225,3 +239,50 @@ class Database():
         # For cases when we want to commit at the end only
         if commit:
             self._conn.session.commit()
+
+    def __get_user(self, username: str, data: str|list[str]) -> str|dict[str:str]:
+        """ Get different data by username """
+
+        args = {
+            "username": username
+        }
+
+        sql = text("""--sql
+            SELECT
+                *
+            FROM
+                users
+            WHERE
+                username = :username
+            ;
+        """)
+
+        result = self._conn.session.execute(sql, args)
+
+        # Get neccessary data from result
+        if isinstance(data, str):
+            for column, value in zip(result.keys(), result.fetchone()):
+                if column == data:
+
+                    return value
+
+        if isinstance(data, list):
+            wanted_result = {}
+            for column in zip(result.keys(), result.fetchone()):
+                if column in data:
+                    wanted_result[column] = value
+
+            return wanted_result
+    
+    def __list_users(self) -> list[str]:
+        """ List all users """
+
+    def __hash(self, password: str) -> str:
+        """ Hash and salt given password """
+
+        hashed = password + "hash"
+
+        return hashed
+    
+    def __validate(self, **kwargs) -> bool:
+        """ Validate stuff """

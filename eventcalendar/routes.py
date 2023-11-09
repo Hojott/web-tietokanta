@@ -1,8 +1,10 @@
 """ Flask routes """
 
-from flask import Flask, render_template, request
-from dbs import Database # pylint: disable=import-error
+from flask import Flask, render_template, redirect, request, Response
+from flask.cli import with_appcontext
+from dbs import Database
 
+#@with_appcontext
 def load_routes(app: Flask, db: Database) -> None:
     """ Load all routes for the flask app """
 
@@ -27,36 +29,61 @@ def load_routes(app: Flask, db: Database) -> None:
     def event(post_id: int):
         """ Event page """
 
+    @app.route("/register")
+    def register_empty() -> Response:
+        return redirect("/register/user")
+
     @app.route("/register/<rtype>", methods=["GET", "POST"])
     def register(rtype: str) -> str:
         """ Register user / organization """
 
-        if request.method == "POST":
 
-            if rtype == "user":
+        if rtype == "user" or rtype == "":
+
+            if request.method == "GET":
+                return render_template("register_user.html")
+
+            if request.method == "POST":
                 db.register_user(
                     request.form["username"],
                     request.form["shown_name"],
                     request.form["password"]
                 )
 
-            elif rtype == "organization":
+                return login()
+
+        elif rtype == "organization":
+
+            if request.method == "GET":
+                return render_template("register_organization.html")
+
+            if request.method == "POST":
                 db.register_organization(
                     request.form["username"],
                     request.form["shown_name"],
                     request.form["password"]
                 )
 
-            else:
-                return "You spelled organazation wrong"
+                return login()
 
-            return login()
-
-        if request.method == "GET":
-            return "Email sakari.marttinen@helsinki.fi for account"
+        else:
+            return "You spelled organzation wrong"
 
     @app.route("/login", methods=["GET", "POST"])
     def login():
         """ Login user/org """
 
-        return "Please log in to see this page"
+        if request.method == "GET":
+            return render_template("login.html")
+        
+        if request.method == "POST":
+            login = db.test_credentials(
+                request.form["username"],
+                request.form["password"]
+            )
+
+            if login:
+                # some cookie stuff
+                return "Willkommen!"
+            else:
+                return "Invalid username or password"

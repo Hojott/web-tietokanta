@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """ My cool webserver """
 
-import wsgi # pylint: disable=import-error
+import wsgi
 
 def main() -> None:
     """ ... """
