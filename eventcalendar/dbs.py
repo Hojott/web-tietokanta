@@ -1,7 +1,5 @@
 """ Database functions """
 
-from os import getenv
-
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
@@ -13,10 +11,6 @@ class Database():
 
     def __init__(self, app: Flask):
         """ ... """
-
-        # Configure the app
-        app.config["SQLALCHEMY_DATABASE_URI"] = getenv("SQLALCHEMY_DATABASE_URI")
-        #app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
         # Create a SQLAlchemy object from the app
         self._conn = SQLAlchemy(app)
@@ -44,20 +38,12 @@ class Database():
         # self.__validate(kwargs)
 
         for key, kwarg in kwargs.items():
+            if key == "password":
+                kwargs["key"] = self.__hash(kwarg)
+
             self.__update_user(username, commit=False, **{key: kwarg})
 
         self._conn.session.commit()
-
-
-    def modify_password(self, username: str, password: str) -> None:
-        """ Modify password of a user """
-
-        # self.__validate(username=username)
-        # self.__validate(password=password)
-
-        password_hashed = self.__hash(password)
-
-        self.__update_user(username, password=password_hashed)
 
     def test_credentials(self, username: str, password: str) -> bool:
         """ Try logging in """

@@ -1,6 +1,7 @@
 """ Flask app """
 
 from flask import Flask
+from flask_dotenv import DotEnv
 
 from routes import load_routes
 from dbs import Database
@@ -9,7 +10,10 @@ def run() -> None:
     """ Run the webserver """
 
     # Create the Flask object
-    app = Flask("eventcalendar", template_folder="eventcalendar/templates")
+    app = Flask("eventcalendar")
+
+    # Load environment variables
+    env = DotEnv(app)
 
     # Load the database using the application
     # Note app context is required

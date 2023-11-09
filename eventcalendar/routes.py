@@ -44,13 +44,17 @@ def load_routes(app: Flask, db: Database) -> None:
                 return render_template("register_user.html")
 
             if request.method == "POST":
-                db.register_user(
-                    request.form["username"],
-                    request.form["shown_name"],
-                    request.form["password"]
-                )
+                if request.form["password"] == request.form["password_again"]:
+                    db.register_user(
+                        request.form["username"],
+                        request.form["shown_name"],
+                        request.form["password"]
+                    )
 
-                return login()
+                    return login()
+                
+                else:
+                    return "Passwords do not match!"
 
         elif rtype == "organization":
 
@@ -84,6 +88,6 @@ def load_routes(app: Flask, db: Database) -> None:
 
             if login:
                 # some cookie stuff
-                return "Willkommen!"
+                return redirect("/")
             else:
                 return "Invalid username or password"
