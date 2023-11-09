@@ -1,10 +1,11 @@
 """ Flask routes """
 
-from flask import Flask, render_template, redirect, request, Response
-from flask.cli import with_appcontext
+import secrets
+
+from flask import Flask, render_template, redirect, request, Response, session
+
 from dbs import Database
 
-#@with_appcontext
 def load_routes(app: Flask, db: Database) -> None:
     """ Load all routes for the flask app """
 
@@ -37,6 +38,8 @@ def load_routes(app: Flask, db: Database) -> None:
     def register(rtype: str) -> str:
         """ Register user / organization """
 
+        if "username" in session:
+            return redirect("/")
 
         if rtype == "user" or rtype == "":
 
@@ -77,6 +80,9 @@ def load_routes(app: Flask, db: Database) -> None:
     def login():
         """ Login user/org """
 
+        if "username" in session:
+            return redirect("/")
+
         if request.method == "GET":
             return render_template("login.html")
         
@@ -87,7 +93,10 @@ def load_routes(app: Flask, db: Database) -> None:
             )
 
             if login:
-                # some cookie stuff
+                session["username"] = request.form["username"]
+                session["csrf_token"] = secrets.token_hex(16)
+
+
                 return redirect("/")
             else:
                 return "Invalid username or password"
