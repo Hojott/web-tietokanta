@@ -1,12 +1,7 @@
 #!/usr/bin/env python3
 """ My cool webserver """
 
-import wsgi
-
-def main() -> None:
-    """ ... """
-
-    wsgi.run()
+from wsgi import main
 
 if __name__ == "__main__":
     main()

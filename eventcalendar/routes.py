@@ -39,7 +39,7 @@ def load_routes(app: Flask, db: Database) -> None:
         """ Register user / organization """
 
         if "username" in session:
-            return redirect("/")
+            return redirect("/home")
 
         if rtype == "user" or rtype == "":
 
@@ -81,7 +81,7 @@ def load_routes(app: Flask, db: Database) -> None:
         """ Login user/org """
 
         if "username" in session:
-            return redirect("/")
+            return redirect("/home")
 
         if request.method == "GET":
             return render_template("login.html")
@@ -97,6 +97,16 @@ def load_routes(app: Flask, db: Database) -> None:
                 session["csrf_token"] = secrets.token_hex(16)
 
 
-                return redirect("/")
+                return redirect("/home")
             else:
                 return "Invalid username or password"
+
+    @app.route("/logout", methods=["GET", "POST"])
+    def logout():
+        """ Logout """
+
+        session.pop("username", None)
+        session.pop("csrf_token", None)
+
+        if request.method == "GET":
+            return redirect("/home")

@@ -7,7 +7,9 @@ from sqlalchemy.sql import text
 from sqlalchemy import inspect
 
 class Database():
-    """ API for the database """
+    """ API for the database
+        For some reason I didn't use existing SQLAlchemy
+        and instead made my own methods """
 
     def __init__(self, app: Flask):
         """ ... """

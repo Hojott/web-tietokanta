@@ -1,27 +1,13 @@
-""" Flask app """
+from webs import Webapp
 
-from flask import Flask
-from flask_dotenv import DotEnv
+import pages
 
-from routes import load_routes
-from dbs import Database
+def main():
 
-def run() -> None:
-    """ Run the webserver """
+    app = Webapp()
 
-    # Create the Flask object
-    app = Flask("eventcalendar")
+    app.routes(
 
-    # Load environment variables
-    env = DotEnv(app)
+    )
 
-    # Load the database using the application
-    # Note app context is required
-    with app.app_context():
-        db = Database(app)
-
-    # Load Flask routes, using the db and app
-    load_routes(app, db)
-
-    # Run server
     app.run(host="0.0.0.0", debug=True)
