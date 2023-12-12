@@ -1,10 +1,14 @@
 """ Database functions """
 
+import os
+
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
 from sqlalchemy.sql import text
 from sqlalchemy import inspect
+
+from werkzeug.security import generate_password_hash, check_password_hash
 
 class Database():
     """ API for the database """
@@ -26,7 +30,7 @@ class Database():
         # self.__validate(shown_name=shown_name)
         # self.__validate(password=password)
 
-        password_hashed = self.__hash(password)
+        password_hashed = self.__hash(password, username)
 
         self.__add_user(username, shown_name, password_hashed)
 
@@ -39,7 +43,7 @@ class Database():
 
         for key, kwarg in kwargs.items():
             if key == "password":
-                kwargs["key"] = self.__hash(kwarg)
+                kwargs["key"] = self.__hash(kwarg, username)
 
             self.__update_user(username, commit=False, **{key: kwarg})
 
@@ -48,17 +52,9 @@ class Database():
     def test_credentials(self, username: str, password: str) -> bool:
         """ Try logging in """
 
-        password_hashed = self.__hash(password)
-
         real_password = self.__get_user(username, data="password")
-
-        print(password_hashed, real_password)
-
-        if real_password == password_hashed:
-            print("yeaahh")
-            return True
         
-        return False
+        return self.__check_hash(real_password, password, username)
 
 #======= Private functions =====#
 
@@ -263,12 +259,21 @@ class Database():
     def __list_users(self) -> list[str]:
         """ List all users """
 
-    def __hash(self, password: str) -> str:
-        """ Hash and salt given password """
+    def __salt_pepper(self, password: str, salt = "") -> str:
+        """ Salt and/or pepper given password """
+        return password + salt[:os.getenv("SALT_SIZE", 0)] + os.getenv("PEPPER", "")
 
-        hashed = password + "hash"
+    def __hash(self, password: str, salt = "") -> str:
+        """ Salt and hash given password """
+
+        salted = self.__salt_pepper(password, salt)
+        hashed = generate_password_hash(salted)
 
         return hashed
     
-    def __validate(self, **kwargs) -> bool:
-        """ Validate stuff """
+    def __check_hash(self, hashed: str, password: str, salt = "") -> bool:
+
+        salted = self.__salt_pepper(password, salt)
+
+        return check_password_hash(hashed, salted)
+
